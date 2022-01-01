@@ -16,83 +16,85 @@ import {
   Descendant,
   Element as SlateElement,
 } from 'slate'
-import { css } from 'emotion'
+import { css } from '@emotion/css'
 import { withHistory } from 'slate-history'
+import { CustomEditor } from '../text_editor2/custom-types'
 
 const initialValue: Descendant[] = [
-  {
-    type: 'paragraph',
-    children: [
-      {
-        text:
-          'With Slate you can build complex block types that have their own embedded content and behaviors, like rendering checkboxes inside check list items!',
-      },
-    ],
-  },
-  {
-    type: 'check-list-item',
-    checked: true,
-    children: [{ text: 'Slide to the left.' }],
-  },
-  {
-    type: 'check-list-item',
-    checked: true,
-    children: [{ text: 'Slide to the right.' }],
-  },
-  {
-    type: 'check-list-item',
-    checked: false,
-    children: [{ text: 'Criss-cross.' }],
-  },
-  {
-    type: 'check-list-item',
-    checked: true,
-    children: [{ text: 'Criss-cross!' }],
-  },
-  {
-    type: 'check-list-item',
-    checked: false,
-    children: [{ text: 'Cha cha real smooth…' }],
-  },
-  {
-    type: 'check-list-item',
-    checked: false,
-    children: [{ text: "Let's go to work!" }],
-  },
-  {
-    type: 'paragraph',
-    children: [{ text: 'Try it out for yourself!' }],
-  },
+    {
+        type: 'paragraph',
+        children: [
+            {
+                text:
+                    'With Slate you can build complex block types that have their own embedded content and behaviors, like rendering checkboxes inside check list items!',
+            },
+        ],
+    },
+    {
+        type: 'check-list-item',
+        checked: true,
+        children: [{text: 'Slide to the left.'}],
+    },
+    {
+        type: 'check-list-item',
+        checked: true,
+        children: [{text: 'Slide to the right.'}],
+    },
+    {
+        type: 'check-list-item',
+        checked: false,
+        children: [{text: 'Criss-cross.'}],
+    },
+    {
+        type: 'check-list-item',
+        checked: true,
+        children: [{text: 'Criss-cross!'}],
+    },
+    {
+        type: 'check-list-item',
+        checked: false,
+        children: [{text: 'Cha cha real smooth…'}],
+    },
+    {
+        type: 'check-list-item',
+        checked: false,
+        children: [{text: "Let's go to work!"}],
+    },
+    {
+        type: 'paragraph',
+        children: [{text: 'Try it out for yourself!'}],
+    },
 ]
 
 const CheckListsExample = () => {
-  const [value, setValue] = useState<Descendant[]>(initialValue)
-  const renderElement = useCallback(props => <Element {...props} />, [])
-  const editor = useMemo(
-    () => withChecklists(withHistory(withReact(createEditor()))),
-    []
-  )
+    const [value, setValue] = useState<Descendant[]>(initialValue)
+    const renderElement = useCallback(props => <Element {...props} />, [])
+    const editor = useMemo(
+        () => withChecklists(withHistory(withReact(createEditor()))),
+        []
+    )
 
-  return (
-    <Slate editor={editor} value={value} onChange={value => setValue(value)}>
-      <Editable
-        renderElement={renderElement}
-        placeholder="Get to work…"
-        spellCheck
-        autoFocus
-      />
-    </Slate>
-  )
+    return (
+        <Slate editor={editor} value={value} onChange={value => setValue(value)}>
+            <Editable
+                renderElement={renderElement}
+                placeholder="Get to work…"
+                spellCheck
+                autoFocus
+            />
+        </Slate>
+    )
 }
 
-const withChecklists = editor => {
+const withChecklists = (editor: CustomEditor) => {
   const { deleteBackward } = editor
 
   editor.deleteBackward = (...args) => {
     const { selection } = editor
 
     if (selection && Range.isCollapsed(selection)) {
-      const [match] = Editor.nodes(editor, {
+      // @ts-ignore
+        const [match] = Editor.nodes(editor, {
         match: n =>
           !Editor.isEditor(n) &&
           SlateElement.isElement(n) &&
@@ -124,7 +126,7 @@ const withChecklists = editor => {
   return editor
 }
 
-const Element = props => {
+const Element = (props: JSX.IntrinsicAttributes & { attributes: any; children: any; element: any }) => {
   const { attributes, children, element } = props
 
   switch (element.type) {
@@ -135,6 +137,7 @@ const Element = props => {
   }
 }
 
+// @ts-ignore
 const CheckListItemElement = ({ attributes, children, element }) => {
   const editor = useSlateStatic()
   const readOnly = useReadOnly()
@@ -146,7 +149,6 @@ const CheckListItemElement = ({ attributes, children, element }) => {
         display: flex;
         flex-direction: row;
         align-items: center;
-
         & + & {
           margin-top: 0;
         }
@@ -177,7 +179,6 @@ const CheckListItemElement = ({ attributes, children, element }) => {
           flex: 1;
           opacity: ${checked ? 0.666 : 1};
           text-decoration: ${!checked ? 'none' : 'line-through'};
-
           &:focus {
             outline: none;
           }
